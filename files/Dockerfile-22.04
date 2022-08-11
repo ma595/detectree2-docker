@@ -1,0 +1,29 @@
+FROM ubuntu:22.04 as dev-env
+LABEL maintainer="ma595 <ma595@cam.ac.uk>"
+LABEL description="Detectree2 testing and development environment"
+
+RUN apt-get update -yqq && \
+    apt-get install -yqq software-properties-common 
+
+
+# RUN add-apt-repository -y ppa:ubuntugis/ppa && apt -y update && \
+# apt install -y \
+#  libgdal-dev 
+
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get -y install git gdal-bin python3-pip python3-opencv libgdal-dev
+
+RUN export CPLUS_INCLUDE_PATH=/usr/include/gdal && \
+  export C_INCLUDE_PATH=/usr/include/gdal
+
+RUN pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu                                                                                                      
+RUN pip3 install opencv-python wandb numpy==1.23.1 sphinx
+
+RUN python3 -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
+
+# development dependencies
+RUN pip3 install flake8 pep8-naming pydocstyle pytest \
+    isort data-science-types pandas-stubs types-pillow mypy
+
+#RUN pip install git+https://github.com/PatBall1/detectree2.git
+RUN git clone https://github.com/ma595/detectree2.git && cd detectree2 && git checkout ma595-patch-1 && pip install .
